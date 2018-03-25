@@ -1,4 +1,5 @@
 import json
+import urllib.request
 
 import pika
 from pika.credentials import PlainCredentials
@@ -15,23 +16,14 @@ def read_status():
         return file.read()
 
 
-def check_services():
-    file = open(filename, "w+")
-
-    status = {}
-
-    if file.read() == "":
-        status = {
-            "mq-integration": False
-        }
-    else:
-        status = json.load(file)
-
-    check_integration(status)
-
-    json.dump(status, file)
-
-    file.close()
+def write_status(string):
+    """
+    Write to status.json
+    :param string:
+    :return:
+    """
+    with open(filename, "w") as file:
+        file.write(string)
 
 
 def check_integration(status):
@@ -55,3 +47,10 @@ def check_integration(status):
 
 if __name__ == '__main__':
     check_services()
+
+
+def fetch_service(url):
+    try:
+        return json.loads(urllib.request.urlopen("{0}/status".format(url), timeout=2))
+    except Exception:
+        return "down"

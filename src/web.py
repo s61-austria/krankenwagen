@@ -2,15 +2,28 @@ import json
 
 from flask import Flask
 
-from src.checker import read_status
+import src.checker as checker
 from src.status import status
 
 app = Flask(__name__)
+settings = json.load(open('config.json'))
 
 
 @app.route("/")
 def hello():
-    return read_status()
+    return checker.read_status()
+
+
+@app.route("/update")
+def update():
+    status_obj = {
+        "services": {}
+    }
+    for service in settings['services']:
+        status_obj['services'][service] = checker.fetch_service(service)
+
+    checker.write_status(json.dumps(status_obj))
+    return json.dumps(status_obj)
 
 
 @app.route("/status")
