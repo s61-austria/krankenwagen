@@ -45,9 +45,27 @@ def check_integration(status):
     status['mq-integration'] = channel.is_open
 
 
-if __name__ == '__main__':
-    check_services()
+def check_mq(url, user, pw):
+    """
+    Check status of MQ server
+    :param url:
+    :return:
+    """
+    ret = {}
+    conn = pika.BlockingConnection(
+        pika.ConnectionParameters(
+            host=url,
+            virtual_host="vhost",
+            credentials=PlainCredentials("rabbitmq", "rabbitmq")
+        )
+    )
 
+    channel = conn.channel()
+
+    ret['up'] = channel.is_open
+    ret['waiting_count'] = channel.get_waiting_message_count()
+
+    return ret
 
 def fetch_service(url):
     try:
