@@ -67,8 +67,16 @@ def check_mq(url, user, pw):
 
     return ret
 
+
 def fetch_service(url):
     try:
         return json.loads(urllib.request.urlopen("{0}/status".format(url), timeout=2))
+    except Exception:
+        return "down"
+
+
+def check_app(url):
+    try:
+        return json.loads(urllib.request.urlopen("{0}/api/management/health".format(url), timeout=2))
     except Exception:
         return "down"
